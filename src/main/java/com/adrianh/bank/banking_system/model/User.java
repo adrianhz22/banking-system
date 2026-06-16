@@ -1,6 +1,8 @@
 package com.adrianh.bank.banking_system.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -14,8 +16,9 @@ public class User {
     private String email;
     private String password;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "user")
-    private java.util.List<Account> accounts;
+    private List<Account> accounts;
 
     public Long getId() {
         return id;
@@ -49,4 +52,11 @@ public class User {
         this.password = password;
     }
 
+    public List<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(List<Account> accounts) {
+        this.accounts = accounts;
+    }
 }

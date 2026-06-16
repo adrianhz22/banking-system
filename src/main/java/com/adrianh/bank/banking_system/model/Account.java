@@ -1,6 +1,7 @@
 package com.adrianh.bank.banking_system.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class Account {
@@ -12,6 +13,7 @@ public class Account {
     private String accountNumber;
     private double balance;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
