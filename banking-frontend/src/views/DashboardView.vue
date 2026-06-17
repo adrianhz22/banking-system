@@ -18,9 +18,19 @@
         </div>
       </div>
 
-       <div class="summary-card">
-  <span>Total Balance</span>
-  <h2>{{ totalBalance.toFixed(2) }} €</h2>
+      <div class="summary-card">
+
+  <div class="summary-top">
+    <div>
+      <span>Total Balance</span>
+      <h2>{{ totalBalance.toFixed(2) }} €</h2>
+    </div>
+
+    <button class="transfer-btn" @click="goTransfer">
+      + New Transfer
+    </button>
+  </div>
+
 </div>
       <h2>Your accounts</h2>
 
@@ -56,7 +66,7 @@ export default {
   computed: {
     totalBalance() {
       return (this.user?.accounts || [])
-        .reduce((sum, acc) => sum + acc.balance, 0);
+        .reduce((sum, acc) => sum + Number(acc.balance), 0);
     }
   },
 
@@ -66,7 +76,13 @@ export default {
       const res = await api.get(`/api/users/${id}`);
       this.user = res.data;
     } catch (err) {
-      console.error("Error loading user:", err);
+      console.error(err);
+    }
+  },
+
+  methods: {
+    goTransfer() {
+      this.$router.push(`/transfer/${this.$route.params.id}`);
     }
   }
 };
@@ -228,5 +244,34 @@ h2 {
     width: 60px;
     height: 60px;
   }
+}
+
+.summary-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.transfer-btn {
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .25s ease;
+  backdrop-filter: blur(8px);
+}
+
+.transfer-btn:hover {
+  background: white;
+  color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.transfer-btn:active {
+  transform: translateY(0);
 }
 </style>

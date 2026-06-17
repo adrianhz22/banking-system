@@ -10,6 +10,10 @@ const routes = [
   {
     path: "/dashboard/:id",
     component: DashboardView
+  },
+  {
+    path: "/transfer/:userId",
+    component: () => import("../views/TransferView.vue")
   }
 ];
 
