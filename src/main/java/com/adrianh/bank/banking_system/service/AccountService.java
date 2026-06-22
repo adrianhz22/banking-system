@@ -1,7 +1,9 @@
 package com.adrianh.bank.banking_system.service;
 
 import com.adrianh.bank.banking_system.model.Account;
+import com.adrianh.bank.banking_system.model.Transaction;
 import com.adrianh.bank.banking_system.repository.AccountRepository;
+import com.adrianh.bank.banking_system.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,9 +13,13 @@ import java.util.List;
 public class AccountService {
 
     private final AccountRepository repo;
+    private final TransactionRepository transactionRepo;
 
-    public AccountService(AccountRepository repo) {
+    public AccountService(
+            AccountRepository repo,
+            TransactionRepository transactionRepo) {
         this.repo = repo;
+        this.transactionRepo = transactionRepo;
     }
 
     public Account createAccount(Account account) {
@@ -42,5 +48,12 @@ public class AccountService {
 
         repo.save(from);
         repo.save(to);
+
+        Transaction transaction = new Transaction();
+        transaction.setAmount(amount);
+        transaction.setFromAccount(from);
+        transaction.setToAccount(to);
+
+        transactionRepo.save(transaction);
     }
 }

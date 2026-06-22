@@ -20,18 +20,18 @@
 
       <div class="summary-card">
 
-  <div class="summary-top">
-    <div>
-      <span>Total Balance</span>
-      <h2>{{ totalBalance.toFixed(2) }} €</h2>
-    </div>
+        <div class="summary-top">
+          <div>
+            <span>Total Balance</span>
+            <h2>{{ totalBalance.toFixed(2) }} €</h2>
+          </div>
 
-    <button class="transfer-btn" @click="goTransfer">
-      + New Transfer
-    </button>
-  </div>
+          <button class="transfer-btn" @click="goTransfer">
+            + New Transfer
+          </button>
+        </div>
 
-</div>
+      </div>
       <h2>Your accounts</h2>
 
       <div class="grid">
@@ -49,6 +49,61 @@
         </div>
       </div>
 
+      <h2 class="section-title">Recent Transactions</h2>
+
+      <div class="transactions-card">
+
+        <div v-if="transactions.length === 0" class="empty-transactions">
+          No transactions yet.
+        </div>
+
+        <div v-for="tx in transactions" :key="tx.id" class="transaction-row">
+
+          <div class="transaction-info">
+
+            <div class="transaction-icon" :class="{
+              outgoing: tx.fromAccount.id === user.accounts[0].id,
+              incoming: tx.toAccount.id === user.accounts[0].id
+            }">
+              {{
+                tx.fromAccount.id === user.accounts[0].id
+                  ? "↑"
+                  : "↓"
+              }}
+            </div>
+
+            <div>
+              <strong>
+                {{
+                  tx.fromAccount.id === user.accounts[0].id
+                    ? "Money Sent"
+                    : "Money Received"
+                }}
+              </strong>
+
+              <p>
+                {{ new Date(tx.createdAt).toLocaleString() }}
+              </p>
+            </div>
+
+          </div>
+
+          <div class="transaction-amount" :class="{
+            negative: tx.fromAccount.id === user.accounts[0].id,
+            positive: tx.toAccount.id === user.accounts[0].id
+          }">
+            {{
+              tx.fromAccount.id === user.accounts[0].id
+                ? "-"
+                : "+"
+            }}
+            {{ tx.amount.toFixed(2) }} €
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
   </div>
 </template>
@@ -59,7 +114,8 @@ import api from "../services/api";
 export default {
   data() {
     return {
-      user: null
+      user: null,
+      transactions: []
     };
   },
 
@@ -75,6 +131,18 @@ export default {
       const id = this.$route.params.id;
       const res = await api.get(`/api/users/${id}`);
       this.user = res.data;
+      if (this.user.accounts?.length > 0) {
+
+        const accountId = this.user.accounts[0].id;
+
+        const txRes = await api.get(
+          `/api/transactions/account/${accountId}`
+        );
+        console.log("Account ID:", accountId);
+        console.log("Transactions:", txRes.data);
+
+        this.transactions = txRes.data;
+      }
     } catch (err) {
       console.error(err);
     }
@@ -160,9 +228,9 @@ h2 {
 .card {
   position: relative;
   overflow: hidden;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
   padding: 28px;
   transition: all 0.3s ease;
@@ -170,8 +238,8 @@ h2 {
 
 .card:hover {
   transform: translateY(-6px);
-  border-color: rgba(59,130,246,0.4);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 .card::before {
@@ -181,7 +249,7 @@ h2 {
   right: -40px;
   width: 120px;
   height: 120px;
-  background: rgba(59,130,246,0.15);
+  background: rgba(59, 130, 246, 0.15);
   border-radius: 50%;
 }
 
@@ -215,7 +283,7 @@ h2 {
   padding: 30px;
   margin-bottom: 40px;
   color: white;
-  box-shadow: 0 15px 40px rgba(37,99,235,.4);
+  box-shadow: 0 15px 40px rgba(37, 99, 235, .4);
 }
 
 .summary-card span {
@@ -254,7 +322,7 @@ h2 {
 
 .transfer-btn {
   border: none;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   color: white;
   padding: 14px 22px;
   border-radius: 14px;
@@ -273,5 +341,80 @@ h2 {
 
 .transfer-btn:active {
   transform: translateY(0);
+}
+
+.section-title {
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+.transactions-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.transaction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.transaction-row:last-child {
+  border-bottom: none;
+}
+
+.transaction-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.transaction-info p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.transaction-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.outgoing {
+  background: rgba(239, 68, 68, .2);
+  color: #ef4444;
+}
+
+.incoming {
+  background: rgba(34, 197, 94, .2);
+  color: #22c55e;
+}
+
+.transaction-amount {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.positive {
+  color: #22c55e;
+}
+
+.negative {
+  color: #ef4444;
+}
+
+.empty-transactions {
+  padding: 30px;
+  text-align: center;
+  color: #94a3b8;
 }
 </style>
