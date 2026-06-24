@@ -12,17 +12,21 @@
       <form @submit.prevent="login" class="login-form">
         <div class="input-group">
           <label>User ID</label>
-          <input
-            v-model="userId"
-            type="number"
-            placeholder="Enter your user ID"
-          />
+          <input v-model="userId" type="number" placeholder="Enter your user ID" />
         </div>
 
         <button type="submit" class="login-button">
           Access Dashboard
         </button>
       </form>
+
+      <div class="register-link">
+        Don't have an account?
+
+        <router-link to="/register">
+          Create one
+        </router-link>
+      </div>
 
       <div class="footer-text">
         Secure banking powered by Spring Boot + Vue
