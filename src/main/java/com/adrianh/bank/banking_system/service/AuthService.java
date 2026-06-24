@@ -15,7 +15,6 @@ public class AuthService {
 
     public AuthService(UserRepository userRepository,
             PasswordEncoder passwordEncoder) {
-
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -25,17 +24,19 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
-        if (!passwordEncoder.matches(
-                request.getPassword(),
-                user.getPassword())) {
-
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid email or password");
         }
 
+        String token = generateFakeToken(user);
+
         return new LoginResponse(
-                "TEMP_TOKEN",
+                token,
                 user.getId(),
                 user.getName());
     }
 
+    private String generateFakeToken(User user) {
+        return "token_" + user.getId() + "_" + System.currentTimeMillis();
+    }
 }
